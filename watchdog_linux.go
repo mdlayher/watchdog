@@ -48,6 +48,8 @@ func (d *Device) close() error {
 	// reboot. Reference:
 	// https://www.kernel.org/doc/html/latest/watchdog/watchdog-api.html#magic-close-feature
 	if _, err := d.f.Write([]byte("V")); err != nil {
+		// Make sure the file descriptor is closed even if Magic Close fails.
+		_ = d.f.Close()
 		return err
 	}
 
