@@ -22,7 +22,12 @@ func main() {
 	// in a doomed state.
 	defer d.Close()
 
-	fmt.Printf("device: %q\n", d.Identity)
+	timeout, err := d.Timeout()
+	if err != nil {
+		log.Fatalf("failed to fetch watchdog timeout: %v", err)
+	}
+
+	fmt.Printf("device: %q, timeout: %s\n", d.Identity, timeout)
 
 	for i := 0; i < 3; i++ {
 		if err := d.Ping(); err != nil {

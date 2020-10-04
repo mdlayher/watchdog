@@ -5,6 +5,7 @@ package watchdog
 import (
 	"os"
 	"strings"
+	"time"
 
 	"golang.org/x/sys/unix"
 )
@@ -41,6 +42,16 @@ func open() (*Device, error) {
 }
 
 func (d *Device) ping() error { return unix.IoctlWatchdogKeepalive(int(d.f.Fd())) }
+
+func (d *Device) timeout() (time.Duration, error) {
+	s, err := unix.IoctlGetInt(int(d.f.Fd()), unix.WDIOC_GETTIMEOUT)
+	if err != nil {
+		return 0, err
+	}
+
+	// The time value is always returned in seconds.
+	return time.Duration(s) * time.Second, nil
+}
 
 func (d *Device) close() error {
 	// Attempt a Magic Close to disarm the watchdog device, since any call to
